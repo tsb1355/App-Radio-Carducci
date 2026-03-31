@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a0000">
+<title>Radio Carducci</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #c0001a;
+    --red-dark: #8a0012;
+    --red-deep: #1a0000;
+    --red-glow: rgba(192,0,26,0.35);
+    --cream: #f5ede4;
+    --warm-white: #fff8f3;
+    --gray: #8a7a72;
+    --card-bg: rgba(255,255,255,0.04);
+    --border: rgba(192,0,26,0.2);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; background:var(--red-deep); color:var(--cream); font-family:'DM Sans',sans-serif; overflow:hidden; }
+  body::before {
+    content:''; position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(192,0,26,0.45) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(120,0,10,0.3) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.012) 60px, rgba(255,255,255,0.012) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.008) 60px, rgba(255,255,255,0.008) 61px);
+    pointer-events:none; z-index:0;
+  }
+  #bgBlur { position:fixed; inset:0; z-index:0; background-size:cover; background-position:center; filter:blur(60px) brightness(0.18) saturate(1.4); transition:background-image 1s ease; pointer-events:none; }
+  #app { position:relative; z-index:1; height:100vh; display:flex; flex-direction:column; max-width:480px; margin:0 auto; }
+
+header { padding:52px 24px 14px; display:flex; align-items:center; gap:14px; flex-shrink:0; }
+.logo-mark { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,var(–red),var(–red-dark)); display:flex; align-items:center; justify-content:center; font-family:‘Playfair Display’,serif; font-weight:900; font-size:18px; color:#fff; box-shadow:0 4px 20px var(–red-glow); flex-shrink:0; }
+.header-text h1 { font-family:‘Playfair Display’,serif; font-size:20px; font-weight:700; letter-spacing:-0.3px; line-height:1; color:var(–warm-white); }
+.header-text span { font-size:10px; font-weight:300; color:var(–gray); letter-spacing:2px; text-transform:uppercase; }
+.live-badge { margin-left:auto; display:flex; align-items:center; gap:6px; background:rgba(192,0,26,0.15); border:1px solid rgba(192,0,26,0.4); border-radius:20px; padding:5px 12px; font-size:11px; font-weight:500; color:#ff4d4d; }
+.live-dot { width:6px; height:6px; border-radius:50%; background:#ff4d4d; animation:pulseDot 1.5s infinite; }
+@keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+/* PLAYER */
+.player-card { margin:0 16px 14px; background:linear-gradient(145deg,rgba(192,0,26,0.1),rgba(20,0,0,0.6)); border:1px solid var(–border); border-radius:24px; padding:20px; position:relative; overflow:hidden; flex-shrink:0; backdrop-filter:blur(20px); }
+.player-top { display:flex; gap:16px; align-items:center; margin-bottom:16px; }
+.cover-wrap { position:relative; flex-shrink:0; width:80px; height:80px; }
+.cover-img { width:80px; height:80px; border-radius:14px; object-fit:cover; display:block; box-shadow:0 6px 24px rgba(0,0,0,0.6); transition:opacity 0.4s ease; }
+.cover-placeholder { width:80px; height:80px; border-radius:14px; background:linear-gradient(135deg,var(–red-dark),#3a0008); display:flex; align-items:center; justify-content:center; }
+.cover-placeholder img { width:80px; height:80px; border-radius:14px; object-fit:cover; }
+.cover-spin { position:absolute; inset:0; border-radius:14px; border:2px solid transparent; border-top-color:var(–red); animation:spin 1s linear infinite; display:none; }
+.cover-spin.active{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.player-info{flex:1;min-width:0}
+.now-playing-label{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(–red);margin-bottom:6px}
+.track-title-wrap{overflow:hidden}
+.track-title{font-family:‘Playfair Display’,serif;font-size:17px;font-weight:700;color:var(–warm-white);line-height:1.25;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track-artist{font-size:13px;color:var(–gray);font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.waveform{display:flex;align-items:center;gap:3px;height:24px;margin-bottom:16px}
+.wave-bar{width:3px;border-radius:2px;background:var(–red);opacity:0.6;animation:wave 1.2s ease-in-out infinite}
+.wave-bar:nth-child(1){height:8px;animation-delay:0s}.wave-bar:nth-child(2){height:16px;animation-delay:0.1s}.wave-bar:nth-child(3){height:22px;animation-delay:0.2s}.wave-bar:nth-child(4){height:12px;animation-delay:0.3s}.wave-bar:nth-child(5){height:24px;animation-delay:0.15s}.wave-bar:nth-child(6){height:18px;animation-delay:0.25s}.wave-bar:nth-child(7){height:10px;animation-delay:0.05s}.wave-bar:nth-child(8){height:20px;animation-delay:0.35s}.wave-bar:nth-child(9){height:16px;animation-delay:0.1s}.wave-bar:nth-child(10){height:10px;animation-delay:0.2s}.wave-bar:nth-child(11){height:22px;animation-delay:0.3s}.wave-bar:nth-child(12){height:12px;animation-delay:0.4s}
+.waveform.paused .wave-bar{animation:none;height:3px!important;opacity:0.25;transition:all 0.3s}
+@keyframes wave{0%,100%{transform:scaleY(0.4);opacity:0.4}50%{transform:scaleY(1);opacity:0.9}}
+
+.controls{display:flex;align-items:center}
+.volume-row{display:flex;align-items:center;gap:8px;flex:1}
+.vol-icon{font-size:13px;color:var(–gray)}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;background:rgba(255,255,255,0.15);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(–red);cursor:pointer;box-shadow:0 0 8px var(–red-glow)}
+.play-btn{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(–red),var(–red-dark));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px var(–red-glow);transition:transform 0.15s,box-shadow 0.15s;flex-shrink:0;margin-left:16px}
+.play-btn:active{transform:scale(0.93)}.play-btn.playing{box-shadow:0 4px 30px rgba(192,0,26,0.6),0 0 0 8px rgba(192,0,26,0.1)}
+.play-icon{width:0;height:0;border-style:solid;border-width:9px 0 9px 16px;border-color:transparent transparent transparent #fff;margin-left:3px}
+.play-icon.pause{width:16px;height:18px;border:none;margin-left:0;background:linear-gradient(#fff,#fff) 0 0/5px 18px no-repeat,linear-gradient(#fff,#fff) 11px 0/5px 18px no-repeat}
+
+.history-section{margin-top:14px}
+.history-label{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(–gray);margin-bottom:10px}
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:8px 10px;opacity:0;transform:translateY(4px);animation:historyIn 0.4s ease forwards}
+@keyframes historyIn{to{opacity:1;transform:translateY(0)}}
+.history-cover{width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,var(–red-dark),#3a0008)}
+.history-title{font-size:12px;color:var(–cream);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+
+/* NAV */
+.nav-tabs{display:flex;margin:0 16px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:4px;flex-shrink:0}
+.nav-tab{flex:1;border:none;background:none;color:var(–gray);font-family:‘DM Sans’,sans-serif;font-size:11px;font-weight:500;padding:9px 2px;border-radius:10px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav-tab .tab-icon{font-size:15px}.nav-tab.active{background:var(–red);color:#fff;box-shadow:0 2px 12px var(–red-glow)}
+
+.content{flex:1;overflow-y:auto;padding:0 16px 24px;-webkit-overflow-scrolling:touch}
+.content::-webkit-scrollbar{display:none}
+.panel{display:none;animation:fadeIn 0.3s ease}.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:‘Playfair Display’,serif;font-size:18px;font-weight:700;color:var(–warm-white);margin-bottom:14px}
+
+.day-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px}
+.day-tabs::-webkit-scrollbar{display:none}
+.day-btn{flex-shrink:0;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(–gray);font-family:‘DM Sans’,sans-serif;font-size:11px;font-weight:500;padding:7px 12px;border-radius:20px;cursor:pointer;transition:all 0.2s}
+.day-btn.active{background:var(–red);color:#fff;border-color:var(–red);box-shadow:0 2px 10px var(–red-glow)}
+
+/* PROGRAM CARD con immagine */
+.program-card{background:var(–card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;gap:14px;align-items:center;transition:background 0.2s}
+.program-card:active{background:rgba(192,0,26,0.1)}
+.program-thumb{width:52px;height:52px;border-radius:12px;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,var(–red-dark),#3a0008)}
+.program-thumb-placeholder{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(–red-dark),#3a0008);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.program-info{flex:1;min-width:0}
+.program-name{font-family:‘Playfair Display’,serif;font-size:15px;font-weight:700;color:var(–warm-white);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.program-desc{font-size:11px;color:var(–gray);font-weight:300;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
+.program-time{font-size:11px;color:var(–red);font-weight:500;letter-spacing:0.5px}
+
+/* PODCAST GRID con immagine reale */
+.podcast-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.podcast-card{background:var(–card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.2s;text-decoration:none;display:flex;flex-direction:column}
+.podcast-card:active{background:rgba(192,0,26,0.1)}
+.podcast-cover{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:linear-gradient(135deg,var(–red-dark),#3a0008)}
+.podcast-body{padding:10px 10px 12px}
+.podcast-name{font-size:12px;font-weight:600;color:var(–warm-white);line-height:1.3;margin-bottom:4px}
+.podcast-eps{font-size:11px;color:var(–red);font-weight:500}
+
+.info-hero{text-align:center;padding:8px 0 20px}
+.info-logo{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(–red),var(–red-dark));display:flex;align-items:center;justify-content:center;font-family:‘Playfair Display’,serif;font-weight:900;font-size:34px;color:#fff;margin:0 auto 14px;box-shadow:0 8px 32px var(–red-glow)}
+.info-name{font-family:‘Playfair Display’,serif;font-size:24px;font-weight:700;color:var(–warm-white);margin-bottom:6px}
+.info-tagline{font-size:13px;color:var(–gray);font-weight:300;line-height:1.6;max-width:280px;margin:0 auto}
+.info-row{display:flex;align-items:center;gap:14px;background:var(–card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:13px 16px;margin-bottom:10px}
+.info-row-icon{width:36px;height:36px;border-radius:10px;background:rgba(192,0,26,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.info-row-text{flex:1}
+.info-row-label{font-size:10px;color:var(–gray);letter-spacing:0.5px;margin-bottom:2px;text-transform:uppercase}
+.info-row-value{font-size:13px;color:var(–warm-white);font-weight:500}
+.team-section{margin-top:18px}
+.team-card{background:var(–card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.team-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(–red-dark),#3a0008);display:flex;align-items:center;justify-content:center;font-family:‘Playfair Display’,serif;font-weight:700;font-size:16px;color:var(–cream);flex-shrink:0;border:1px solid rgba(192,0,26,0.3)}
+.team-photo{width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid rgba(192,0,26,0.3)}
+.team-info{flex:1;min-width:0}
+.team-name{font-size:14px;font-weight:600;color:var(–warm-white);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team-role{font-size:11px;color:var(–red);font-weight:500}
+
+.social-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.social-btn{background:var(–card-bg);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:18px 14px;cursor:pointer;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:10px;transition:all 0.2s}
+.social-btn:active{background:rgba(192,0,26,0.1)}
+.social-btn-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.social-btn-label{font-size:13px;font-weight:500;color:var(–cream)}
+.social-ig .social-btn-icon{background:rgba(225,48,108,0.18)}
+.social-tt .social-btn-icon{background:rgba(255,255,255,0.1)}
+.social-web .social-btn-icon{background:rgba(192,0,26,0.18)}
+.share-row{margin-top:14px;background:linear-gradient(135deg,rgba(192,0,26,0.15),rgba(100,0,10,0.1));border:1px solid var(–border);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background 0.2s}
+.share-row:active{background:rgba(192,0,26,0.2)}
+.share-icon{width:44px;height:44px;border-radius:14px;background:var(–red);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 14px var(–red-glow)}
+.share-text h3{font-size:14px;font-weight:600;color:var(–warm-white);margin-bottom:2px}
+.share-text p{font-size:12px;color:var(–gray)}
+
+#loading{position:fixed;inset:0;background:var(–red-deep);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;gap:16px;transition:opacity 0.5s}
+.load-logo{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,var(–red),var(–red-dark));display:flex;align-items:center;justify-content:center;font-family:‘Playfair Display’,serif;font-weight:900;font-size:34px;color:#fff;box-shadow:0 8px 32px var(–red-glow);animation:loadPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes loadPop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+.load-name{font-family:‘Playfair Display’,serif;font-size:28px;font-weight:700;color:var(–warm-white)}
+.load-sub{font-size:11px;color:var(–gray);letter-spacing:2px;text-transform:uppercase;text-align:center}
+.load-bar{width:120px;height:3px;border-radius:2px;background:rgba(255,255,255,0.1);overflow:hidden}
+.load-bar-fill{height:100%;background:var(–red);border-radius:2px;animation:loadBar 1.3s ease forwards}
+@keyframes loadBar{from{width:0}to{width:100%}}
+.empty-day{text-align:center;padding:32px 0;color:var(–gray);font-size:13px}
+@keyframes marquee{0%{transform:translateX(0)}40%{transform:translateX(0)}90%{transform:translateX(var(–marquee-dist,0px))}100%{transform:translateX(var(–marquee-dist,0px))}}
+.track-title.scrolling{animation:marquee 6s linear infinite alternate;display:inline-block;white-space:nowrap;overflow:visible}
+</style>
+
+</head>
+<body>
+
+<div id="bgBlur"></div>
+
+<div id="loading">
+  <div class="load-logo">RC</div>
+  <div class="load-name">Radio Carducci</div>
+  <div class="load-sub">In collaborazione con Alumni Carducci</div>
+  <div class="load-bar"><div class="load-bar-fill"></div></div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="logo-mark">RC</div>
+    <div class="header-text">
+      <h1>Radio Carducci</h1>
+      <span>Talk · Podcast · Cultura</span>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  </header>
+
+  <div class="player-card">
+    <div class="player-top">
+      <div class="cover-wrap">
+        <div class="cover-placeholder" id="coverPlaceholder">
+          <img src="https://www.radiocarducci.com/wp-content/uploads/2025/03/Screenshot_14-3-2025_165252_.jpeg" alt="RC" style="width:80px;height:80px;border-radius:14px;object-fit:cover" onerror="this.parentElement.innerHTML='🎵'">
+        </div>
+        <img id="coverImg" class="cover-img" style="display:none" alt="cover">
+        <div class="cover-spin" id="coverSpin"></div>
+      </div>
+      <div class="player-info">
+        <div class="now-playing-label">▶ In onda ora</div>
+        <div class="track-title-wrap">
+          <div class="track-title" id="trackTitle">Radio Carducci</div>
+        </div>
+        <div class="track-artist" id="trackArtist">Streaming in diretta 24/7</div>
+      </div>
+    </div>
+    <div class="waveform" id="waveform">
+      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    </div>
+    <div class="controls">
+      <div class="volume-row">
+        <span class="vol-icon">🔈</span>
+        <input type="range" id="volume" min="0" max="100" value="80">
+        <span class="vol-icon">🔊</span>
+      </div>
+      <button class="play-btn" id="playBtn" onclick="togglePlay()">
+        <div class="play-icon" id="playIcon"></div>
+      </button>
+    </div>
+    <div class="history-section">
+      <div class="history-label">Ascoltati di recente</div>
+      <div class="history-list" id="historyList"><div style="font-size:12px;color:var(--gray);padding:8px 0">Caricamento...</div></div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('palinsesto',this)"><span class="tab-icon">🎙️</span>Palinsesto</button>
+    <button class="nav-tab" onclick="showTab('podcast',this)"><span class="tab-icon">🎧</span>Podcast</button>
+    <button class="nav-tab" onclick="showTab('info',this)"><span class="tab-icon">ℹ️</span>Info</button>
+    <button class="nav-tab" onclick="showTab('social',this)"><span class="tab-icon">📡</span>Social</button>
+  </div>
+
+  <div class="content">
+
+```
+<!-- PALINSESTO -->
+<div class="panel active" id="panel-palinsesto">
+  <div class="day-tabs" id="dayTabs"></div>
+  <div id="scheduleContainer"></div>
+</div>
+
+<!-- PODCAST -->
+<div class="panel" id="panel-podcast">
+  <div class="section-title">I nostri Podcast</div>
+  <div class="podcast-grid">
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/chiacchiere-gratis/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/chiacchiere-gratis-scaled.jpeg" alt="Chiacchiere Gratis" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Chiacchiere Gratis</div><div class="podcast-eps">13 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/broken-sound/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/Broken-Sound-1-e1774213924722.jpg" alt="Broken Sound" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Broken Sound</div><div class="podcast-eps">15 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/almanacco/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/almanacco-e1742500643752.png" alt="Almanacco" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Almanacco</div><div class="podcast-eps">25 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/ricette-letterarie/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/ricette-letterarie-e1742308249965.jpg" alt="Ricette Letterarie" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Ricette Letterarie</div><div class="podcast-eps">14 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/radio-scienza-pop/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/Radio-Scienza-Pop-e1774213497372.jpg" alt="Radio Scienza Pop" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Radio Scienza Pop</div><div class="podcast-eps">14 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/emergenza-emergenti/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/emergenza-scaled-e1742500602298.jpeg" alt="Emergenza Emergenti" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Emergenza Emergenti</div><div class="podcast-eps">12 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/strano-ma-funziona/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/strano-ma-funziona-1-scaled-e1741983772864.jpg" alt="Strano ma Funziona" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Strano ma Funziona!</div><div class="podcast-eps">13 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/biglietti-x2/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/biglietti-x2-e1742314761888.jpg" alt="Biglietti X2" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Biglietti X2</div><div class="podcast-eps">12 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/olympic-arena/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/olympic-arena-scaled-e1742314279190.jpg" alt="Olympic Arena" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Olympic Arena</div><div class="podcast-eps">11 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/manuale-di-sopravvivenza-letteraria/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2026/03/manuale-di-sopravvivenza-1.jpg" alt="Manuale di Sopravvivenza" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Manuale di Sopravvivenza Letteraria</div><div class="podcast-eps">1 episodio</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/40-gradi/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/IMG_0091-scaled-e1751468960598.jpeg" alt="40 Gradi" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">40 Gradi</div><div class="podcast-eps">3 episodi</div></div>
+    </a>
+    <a class="podcast-card" href="https://www.radiocarducci.com/podcastfilter/habemus-papam/" target="_blank">
+      <img class="podcast-cover" src="https://www.radiocarducci.com/wp-content/uploads/2025/05/WhatsApp-Image-2025-05-10-at-15.35.33.jpeg" alt="Habemus Papam" onerror="this.style.display='none'">
+      <div class="podcast-body"><div class="podcast-name">Habemus Papam</div><div class="podcast-eps">1 episodio</div></div>
+    </a>
+  </div>
+</div>
+
+<!-- INFO -->
+<div class="panel" id="panel-info">
+  <div class="info-hero">
+    <div class="info-logo">RC</div>
+    <div class="info-name">Radio Carducci</div>
+    <div class="info-tagline">La radio fatta dai giovani, per i giovani. Talk, podcast, musica e cultura ogni giorno su radiocarducci.com</div>
+  </div>
+  <div class="info-row"><div class="info-row-icon">🌐</div><div class="info-row-text"><div class="info-row-label">Sito web</div><div class="info-row-value">radiocarducci.com</div></div></div>
+  <div class="info-row"><div class="info-row-icon">📻</div><div class="info-row-text"><div class="info-row-label">Formato</div><div class="info-row-value">Talk · Podcast · Musica · Cultura</div></div></div>
+  <div class="info-row"><div class="info-row-icon">⏰</div><div class="info-row-text"><div class="info-row-label">Trasmissione</div><div class="info-row-value">24 ore su 24, 7 giorni su 7</div></div></div>
+  <div class="info-row"><div class="info-row-icon">🤝</div><div class="info-row-text"><div class="info-row-label">In collaborazione con</div><div class="info-row-value">Alumni Carducci</div></div></div>
+  <div class="team-section">
+    <div class="section-title">Il Team</div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2020/04/IMG_5839.png" alt="TS" onerror="this.outerHTML='<div class=\'team-avatar\'>TS</div>'">
+      <div class="team-info"><div class="team-name">Tommaso Staino Baldino</div><div class="team-role">Station Manager</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/imbellons-scaled.jpg" alt="AI" onerror="this.outerHTML='<div class=\'team-avatar\'>AI</div>'">
+      <div class="team-info"><div class="team-name">Alfredo Imbellone</div><div class="team-role">Station Manager</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/Sabina-Panocchia.jpg" alt="SP" onerror="this.outerHTML='<div class=\'team-avatar\'>SP</div>'">
+      <div class="team-info"><div class="team-name">Sabina Panocchia</div><div class="team-role">Direttrice Artistica</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/la-produzione%F0%9F%98%89-scaled.jpg" alt="SL" onerror="this.outerHTML='<div class=\'team-avatar\'>SL</div>'">
+      <div class="team-info"><div class="team-name">Sofia Lambroni</div><div class="team-role">Responsabile Produzione</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2026/03/Lorenzo-Martorana.jpg" alt="LM" onerror="this.outerHTML='<div class=\'team-avatar\'>LM</div>'">
+      <div class="team-info"><div class="team-name">Lorenzo Martorana</div><div class="team-role">Responsabile Produzione</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/IMG_1899-scaled-e1742073626384.jpg" alt="RB" onerror="this.outerHTML='<div class=\'team-avatar\'>RB</div>'">
+      <div class="team-info"><div class="team-name">Riccardo Billi</div><div class="team-role">Speaker</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/IMG_5831.png" alt="SD" onerror="this.outerHTML='<div class=\'team-avatar\'>SD</div>'">
+      <div class="team-info"><div class="team-name">Simone Di Virgilio</div><div class="team-role">Speaker</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2025/03/paolo-vignati-scaled.jpeg" alt="PV" onerror="this.outerHTML='<div class=\'team-avatar\'>PV</div>'">
+      <div class="team-info"><div class="team-name">Paolo Vignati</div><div class="team-role">Speaker</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2026/03/andrea-curcuruto.jpg" alt="AC" onerror="this.outerHTML='<div class=\'team-avatar\'>AC</div>'">
+      <div class="team-info"><div class="team-name">Andrea Curcuruto</div><div class="team-role">Speaker</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2026/03/Micol-Parente-e1774214260397.jpg" alt="MP" onerror="this.outerHTML='<div class=\'team-avatar\'>MP</div>'">
+      <div class="team-info"><div class="team-name">Micol Parente</div><div class="team-role">Tecnico del Suono</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2026/03/Samia-Hossain.jpg" alt="SH" onerror="this.outerHTML='<div class=\'team-avatar\'>SH</div>'">
+      <div class="team-info"><div class="team-name">Samia Hossain</div><div class="team-role">Tecnico del Suono</div></div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://www.radiocarducci.com/wp-content/uploads/2026/03/Simone-Palmeri.jpg" alt="SP" onerror="this.outerHTML='<div class=\'team-avatar\'>SP</div>'">
+      <div class="team-info"><div class="team-name">Simone Palmeri</div><div class="team-role">Speaker</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL -->
+<div class="panel" id="panel-social">
+  <div class="section-title">Seguici</div>
+  <div class="social-grid">
+    <a class="social-btn social-ig" href="https://www.instagram.com/radiocarducci/" target="_blank"><div class="social-btn-icon">📸</div><div class="social-btn-label">Instagram</div></a>
+    <a class="social-btn social-tt" href="https://www.tiktok.com/@radiocarducci" target="_blank"><div class="social-btn-icon">🎵</div><div class="social-btn-label">TikTok</div></a>
+    <a class="social-btn social-web" href="https://www.radiocarducci.com" target="_blank"><div class="social-btn-icon">🌐</div><div class="social-btn-label">Sito Web</div></a>
+    <a class="social-btn social-web" href="https://www.radiocarducci.com/podcast-page-elementor/" target="_blank"><div class="social-btn-icon">🎧</div><div class="social-btn-label">Tutti i Podcast</div></a>
+  </div>
+  <div class="share-row" onclick="shareApp()">
+    <div class="share-icon">📤</div>
+    <div class="share-text"><h3>Condividi Radio Carducci</h3><p>Fai conoscere la radio ai tuoi amici</p></div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+const STREAM_URL = 'https://altair.streamerr.co/stream/radiocarducci';
+const JSON_URL   = 'https://altair.streamerr.co/json/stream/radiocarducci';
+const CORS_PROXY = 'https://corsproxy.io/?url=';
+const audio = document.getElementById('audio');
+let playing = false, lastTrack = '', pollTimer = null;
+
+async function fetchMeta() {
+  try {
+    // Try direct first, fall back to CORS proxy
+    let data;
+    try {
+      const res = await fetch(JSON_URL + '?_=' + Date.now(), { mode: 'cors' });
+      data = await res.json();
+    } catch(e) {
+      const res = await fetch(CORS_PROXY + encodeURIComponent(JSON_URL) + '&_=' + Date.now());
+      data = await res.json();
+    }
+    const nowplaying = data.nowplaying || '';
+    const coverart   = data.coverart   || '';
+    const history    = data.trackhistory || [];
+    const covers     = data.covers      || [];
+    if (nowplaying !== lastTrack) {
+      lastTrack = nowplaying;
+      let title = nowplaying, artist = 'Radio Carducci';
+      if (nowplaying.includes(' - ')) { const p = nowplaying.split(' - '); artist = p[0].trim(); title = p.slice(1).join(' - ').trim(); }
+      updatePlayerUI(title, artist, coverart);
+      renderHistory(history, covers);
+    }
+  } catch(e) {}
+}
+
+function updatePlayerUI(title, artist, coverUrl) {
+  const titleEl  = document.getElementById('trackTitle');
+  const artistEl = document.getElementById('trackArtist');
+  const coverImg = document.getElementById('coverImg');
+  const coverPh  = document.getElementById('coverPlaceholder');
+  titleEl.style.opacity = artistEl.style.opacity = '0';
+  setTimeout(() => {
+    titleEl.textContent  = title;
+    artistEl.textContent = artist;
+    titleEl.style.transition = artistEl.style.transition = 'opacity 0.4s';
+    titleEl.style.opacity = artistEl.style.opacity = '1';
+    titleEl.classList.remove('scrolling');
+    requestAnimationFrame(() => {
+      const wrap = titleEl.parentElement;
+      if (titleEl.scrollWidth > wrap.clientWidth + 4) {
+        titleEl.style.setProperty('--marquee-dist', (wrap.clientWidth - titleEl.scrollWidth) + 'px');
+        titleEl.classList.add('scrolling');
+      }
+    });
+  }, 300);
+  if (coverUrl) {
+    const tmp = new Image();
+    tmp.onload = () => {
+      coverImg.src = coverUrl;
+      coverImg.style.display = 'block'; coverImg.style.opacity = '0';
+      coverPh.style.display  = 'none';
+      requestAnimationFrame(() => { coverImg.style.transition = 'opacity 0.5s'; coverImg.style.opacity = '1'; });
+      document.getElementById('bgBlur').style.backgroundImage = `url('${coverUrl}')`;
+    };
+    tmp.src = coverUrl;
+  } else {
+    coverImg.style.display = 'none'; coverPh.style.display = 'flex';
+    document.getElementById('bgBlur').style.backgroundImage = '';
+  }
+}
+
+function renderHistory(history, covers) {
+  const list = document.getElementById('historyList');
+  const items = history.map((t,i)=>({title:t,cover:covers[i]||''})).filter(x=>x.title&&x.title!=='Radio Carducci').slice(0,4);
+  if (!items.length) { list.innerHTML='<div style="font-size:12px;color:var(--gray)">Nessun brano recente</div>'; return; }
+  list.innerHTML = items.map((item,i) => {
+    const parts  = item.title.includes(' - ') ? item.title.split(' - ') : ['',item.title];
+    const a = parts[0].trim(), t = parts.slice(1).join(' - ').trim()||item.title;
+    const label = a ? `${a} – ${t}` : t;
+    const img = item.cover ? `<img class="history-cover" src="${item.cover}" alt="" onerror="this.style.display='none'">` : `<div class="history-cover" style="display:flex;align-items:center;justify-content:center;font-size:16px">🎵</div>`;
+    return `<div class="history-item" style="animation-delay:${i*0.07}s">${img}<div class="history-title">${label}</div></div>`;
+  }).join('');
+}
+
+function startPolling(){ fetchMeta(); pollTimer = setInterval(fetchMeta, 10000); }
+
+function togglePlay() {
+  const playBtn=document.getElementById('playBtn'), playIcon=document.getElementById('playIcon'), waveform=document.getElementById('waveform'), spin=document.getElementById('coverSpin');
+  if (playing) {
+    audio.pause(); audio.src=''; playing=false;
+    playBtn.classList.remove('playing'); playIcon.classList.remove('pause'); waveform.classList.add('paused'); spin.classList.remove('active');
+  } else {
+    spin.classList.add('active'); audio.src=STREAM_URL; audio.load(); audio.play().catch(()=>{});
+    playing=true; playBtn.classList.add('playing'); playIcon.classList.add('pause'); waveform.classList.remove('paused');
+  }
+}
+audio.addEventListener('playing',()=>document.getElementById('coverSpin').classList.remove('active'));
+audio.addEventListener('error',()=>{ if(playing){ setTimeout(()=>{ if(playing){audio.src=STREAM_URL;audio.load();audio.play();} },3000); } });
+document.getElementById('volume').addEventListener('input',e=>{ audio.volume=e.target.value/100; });
+audio.volume=0.8;
+
+// Schedule with real images
+const imgBase = 'https://www.radiocarducci.com/wp-content/uploads/';
+const schedule = {
+  lun:[
+    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'Teorie sui film, interviste incredibili e storie imperdibili. Con Sofia e Riccardo.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg'},
+    {time:'16:00–16:30',name:'Manuale di Sopravvivenza Letteraria',desc:'I libri essenziali per sopravvivere alla vita.',img:imgBase+'2026/03/manuale-di-sopravvivenza-1-770x513.jpg'},
+    {time:'16:30–17:00',name:'Radio Scienza Pop',desc:'Tommaso racconta le assurde magie della scienza!',img:imgBase+'2025/03/Radio-Scienza-Pop-e1774213497372-770x722.jpg'},
+    {time:'17:00–17:30',name:'Olympic Arena',desc:'Con Tommaso, Paolo e Francesco nel mondo dello sport agonistico.',img:imgBase+'2025/03/olympic-arena-scaled-e1742314279190-663x770.jpg'},
+    {time:'17:30–18:00',name:'Broken Sound',desc:'Rock, Metal, Blues dagli anni \'70 ad oggi. We play Rock \'n Roll.',img:imgBase+'2025/03/Broken-Sound-1-e1774213924722-758x770.jpg'},
+  ],
+  mar:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la giornata.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg'}],
+  mer:[
+    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'Con Sofia e Riccardo: teorie, interviste e storie.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg'},
+    {time:'17:30–18:00',name:'Emergenza Emergenti',desc:'Simone e Camilla ti fanno scoprire i cantanti emergenti d\'Italia.',img:imgBase+'2025/03/emergenza-scaled-e1742500602298-740x770.jpeg'},
+  ],
+  gio:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la giornata.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg'}],
+  ven:[
+    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'Con Sofia e Riccardo ogni lunedì, mercoledì e venerdì.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg'},
+    {time:'16:30–17:00',name:'Parabatai',desc:'Storie di amicizia, legami indissolubili e complicità.',img:imgBase+'2026/03/Parabatai-770x513.jpg'},
+    {time:'17:00–17:30',name:'Biglietti X2',desc:'Simone e Lorenzo ti guidano tra musei, mostre e concerti di Roma.',img:imgBase+'2025/03/biglietti-x2-e1742314761888-596x770.jpg'},
+  ],
+  sab:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutto il sabato.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg'}],
+  dom:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la domenica.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg'}],
+};
+
+const days=[{key:'lun',label:'Lunedì'},{key:'mar',label:'Martedì'},{key:'mer',label:'Mercoledì'},{key:'gio',label:'Giovedì'},{key:'ven',label:'Venerdì'},{key:'sab',label:'Sabato'},{key:'dom',label:'Domenica'}];
+const keyMap=['dom','lun','mar','mer','gio','ven','sab'];
+let activeDay=keyMap[new Date().getDay()];
+
+function buildDayTabs(){
+  const c=document.getElementById('dayTabs');
+  days.forEach(d=>{
+    const btn=document.createElement('button');
+    btn.className='day-btn'+(d.key===activeDay?' active':'');
+    btn.textContent=d.label;
+    btn.onclick=()=>{ activeDay=d.key; document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderSchedule(); };
+    c.appendChild(btn);
+  });
+}
+
+function renderSchedule(){
+  const c=document.getElementById('scheduleContainer');
+  const programs=schedule[activeDay]||[];
+  if(!programs.length){c.innerHTML='<div class="empty-day">Nessun programma.</div>';return;}
+  c.innerHTML=programs.map(p=>`
+    <div class="program-card">
+      <img class="program-thumb" src="${p.img}" alt="${p.name}" onerror="this.outerHTML='<div class=\'program-thumb-placeholder\'>🎙️</div>'">
+      <div class="program-info">
+        <div class="program-name">${p.name}</div>
+        <div class="program-desc">${p.desc}</div>
+        <div class="program-time">${p.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+buildDayTabs();
+renderSchedule();
+
+window.addEventListener('load',()=>{
+  startPolling();
+  setTimeout(()=>{ const l=document.getElementById('loading'); l.style.opacity='0'; setTimeout(()=>l.remove(),500); },1400);
+});
+
+function showTab(name,btn){ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); document.getElementById('panel-'+name).classList.add('active'); btn.classList.add('active'); }
+function shareApp(){ if(navigator.share){navigator.share({title:'Radio Carducci',text:'Ascolta Radio Carducci!',url:'https://www.radiocarducci.com'});}else{navigator.clipboard.writeText('https://www.radiocarducci.com').then(()=>alert('Link copiato!'));} }
+</script>
+
+</body>
+</html>

@@ -149,6 +149,54 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .share-text h3{font-size:14px;font-weight:600;color:var(–warm-white);margin-bottom:2px}
 .share-text p{font-size:12px;color:var(–gray)}
 
+/* SHOW DETAIL MODAL */
+.show-modal { position:fixed; inset:0; z-index:50; display:flex; flex-direction:column; pointer-events:none; opacity:0; transition:opacity 0.3s; }
+.show-modal.open { opacity:1; pointer-events:all; }
+.show-modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); }
+.show-modal-sheet {
+position:absolute; bottom:0; left:0; right:0;
+max-width:480px; margin:0 auto;
+background: linear-gradient(175deg, #2a0008, #0e0000);
+border-radius:28px 28px 0 0;
+border-top:1px solid rgba(192,0,26,0.3);
+transform:translateY(100%);
+transition:transform 0.4s cubic-bezier(0.34,1.1,0.64,1);
+max-height:88vh;
+overflow-y:auto;
+-webkit-overflow-scrolling:touch;
+}
+.show-modal-sheet::-webkit-scrollbar{display:none}
+.show-modal.open .show-modal-sheet { transform:translateY(0); }
+.show-modal-handle { width:36px; height:4px; border-radius:2px; background:rgba(255,255,255,0.2); margin:14px auto 0; }
+.show-modal-hero { position:relative; }
+.show-modal-img { width:100%; height:220px; object-fit:cover; display:block; }
+.show-modal-img-placeholder { width:100%; height:220px; background:linear-gradient(135deg,var(–red-dark),#3a0008); display:flex; align-items:center; justify-content:center; font-size:64px; }
+.show-modal-overlay { position:absolute; bottom:0; left:0; right:0; height:120px; background:linear-gradient(transparent, #0e0000); }
+.show-modal-body { padding:20px 24px 40px; }
+.show-modal-name { font-family:‘Playfair Display’,serif; font-size:24px; font-weight:700; color:var(–warm-white); margin-bottom:8px; line-height:1.2; }
+.show-modal-times { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.show-modal-time-chip { background:rgba(192,0,26,0.15); border:1px solid rgba(192,0,26,0.35); border-radius:20px; padding:5px 12px; font-size:12px; color:var(–red); font-weight:500; }
+.show-modal-desc { font-size:14px; color:var(–cream); font-weight:300; line-height:1.7; }
+.show-modal-close { position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.5); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; z-index:2; }
+
+/* PROGRAM DETAIL SHEET */
+.detail-sheet{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);background:var(–red-deep);max-width:480px;margin:0 auto;}
+.detail-sheet.open{transform:translateY(0)}
+.detail-hero{position:relative;width:100%;aspect-ratio:1;flex-shrink:0;overflow:hidden;max-height:320px}
+.detail-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.detail-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,var(–red-deep) 100%)}
+.detail-back{position:absolute;top:52px;left:16px;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;z-index:2}
+.detail-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px 48px;margin-top:-32px;position:relative;z-index:1}
+.detail-time-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(192,0,26,0.2);border:1px solid rgba(192,0,26,0.4);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:500;color:var(–red);letter-spacing:0.5px;margin-bottom:12px}
+.detail-title{font-family:‘Playfair Display’,serif;font-size:26px;font-weight:700;color:var(–warm-white);line-height:1.2;margin-bottom:10px}
+.detail-desc{font-size:14px;color:var(–gray);font-weight:300;line-height:1.7;margin-bottom:24px}
+.detail-days{margin-bottom:24px}
+.detail-days-label{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(–gray);margin-bottom:10px}
+.detail-days-chips{display:flex;gap:6px;flex-wrap:wrap}
+.detail-day-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(–cream)}
+.detail-day-chip.active{background:var(–red);border-color:var(–red);color:#fff}
+.detail-site-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:linear-gradient(135deg,var(–red),var(–red-dark));border:none;border-radius:16px;color:#fff;font-family:‘DM Sans’,sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px var(–red-glow)}
+
 #loading{position:fixed;inset:0;background:var(–red-deep);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;gap:16px;transition:opacity 0.5s}
 .load-logo{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,var(–red),var(–red-dark));display:flex;align-items:center;justify-content:center;font-family:‘Playfair Display’,serif;font-weight:900;font-size:34px;color:#fff;box-shadow:0 8px 32px var(–red-glow);animation:loadPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards}
 @keyframes loadPop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
@@ -377,6 +425,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   </div>
 </div>
 
+<!-- PROGRAM DETAIL SHEET -->
+
+<div class="detail-sheet" id="detailSheet">
+  <div class="detail-hero">
+    <img id="detailImg" src="" alt="">
+    <div class="detail-hero-overlay"></div>
+    <div class="detail-back" onclick="closeDetail()">←</div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-time-badge" id="detailTime">🕐 00:00–00:00</div>
+    <div class="detail-title" id="detailTitle"></div>
+    <div class="detail-desc" id="detailDesc"></div>
+    <div class="detail-days">
+      <div class="detail-days-label">In onda</div>
+      <div class="detail-days-chips" id="detailDays"></div>
+    </div>
+    <a class="detail-site-btn" id="detailLink" href="#" target="_blank">Ascolta sul sito →</a>
+  </div>
+</div>
+
 <audio id="audio" preload="none"></audio>
 
 <script>
@@ -481,25 +549,25 @@ audio.volume=0.8;
 const imgBase = 'https://www.radiocarducci.com/wp-content/uploads/';
 const schedule = {
   lun:[
-    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'Teorie sui film, interviste incredibili e storie imperdibili. Con Sofia e Riccardo.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg'},
-    {time:'16:00–16:30',name:'Manuale di Sopravvivenza Letteraria',desc:'I libri essenziali per sopravvivere alla vita.',img:imgBase+'2026/03/manuale-di-sopravvivenza-1-770x513.jpg'},
-    {time:'16:30–17:00',name:'Radio Scienza Pop',desc:'Tommaso racconta le assurde magie della scienza!',img:imgBase+'2025/03/Radio-Scienza-Pop-e1774213497372-770x722.jpg'},
-    {time:'17:00–17:30',name:'Olympic Arena',desc:'Con Tommaso, Paolo e Francesco nel mondo dello sport agonistico.',img:imgBase+'2025/03/olympic-arena-scaled-e1742314279190-663x770.jpg'},
-    {time:'17:30–18:00',name:'Broken Sound',desc:'Rock, Metal, Blues dagli anni \'70 ad oggi. We play Rock \'n Roll.',img:imgBase+'2025/03/Broken-Sound-1-e1774213924722-758x770.jpg'},
+    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'L\'intrattenimento di cui avete bisogno: teorie sui film, interviste incredibili, storie che non potete perdervi e tantissimo altro! Sofia e Riccardo vi accompagnano tutti i lunedì, mercoledì e venerdì dalle 15:00 alle 16:00.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg',days:['Lunedì','Mercoledì','Venerdì'],slug:'chiacchiere-gratis'},
+    {time:'16:00–16:30',name:'Manuale di Sopravvivenza Letteraria',desc:'I libri essenziali per sopravvivere alla vita. Un viaggio attraverso la letteratura che ti cambierà il modo di vedere le cose.',img:imgBase+'2026/03/manuale-di-sopravvivenza-1-770x513.jpg',days:['Lunedì'],slug:'manuale-di-sopravvivenza-letteraria'},
+    {time:'16:30–17:00',name:'Radio Scienza Pop',desc:'La scienza è un infinito mondo di scoperte, quasi magico. Per questo, Tommaso è qui per raccontarvi le assurde magie che è in grado di fare! Vi basterà collegarvi tutti i lunedì dalle 16:30 alle 17:00.',img:imgBase+'2025/03/Radio-Scienza-Pop-e1774213497372-770x722.jpg',days:['Lunedì'],slug:'radio-scienza-pop'},
+    {time:'17:00–17:30',name:'Olympic Arena',desc:'Vuoi praticare uno sport ma non sai quale? Vuoi scoprire qual è lo sport più adatto a te? Sei capitato nella trasmissione che fa al caso tuo. Tommaso, Paolo e Francesco ti faranno immergere nel mondo dell\'agonismo sportivo.',img:imgBase+'2025/03/olympic-arena-scaled-e1742314279190-663x770.jpg',days:['Lunedì'],slug:'olympic-arena'},
+    {time:'17:30–18:00',name:'Broken Sound',desc:'Dagli anni 70 ad oggi, gli artisti ci hanno trasmesso dei messaggi... Rock, Metal, Blues... non importa, l\'importante è la musica. Ascolta "Broken Sound" ogni lunedì dalle 17:30 alle 18:00. This is "Broken Sound" and we play Rock \'n Roll.',img:imgBase+'2025/03/Broken-Sound-1-e1774213924722-758x770.jpg',days:['Lunedì'],slug:'broken-sound'},
   ],
-  mar:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la giornata.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg'}],
+  mar:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la giornata. Il meglio della musica selezionata dallo staff di Radio Carducci.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg',days:['Martedì','Giovedì','Sabato','Domenica'],slug:'la-musica-di-radio-carducci'}],
   mer:[
-    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'Con Sofia e Riccardo: teorie, interviste e storie.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg'},
-    {time:'17:30–18:00',name:'Emergenza Emergenti',desc:'Simone e Camilla ti fanno scoprire i cantanti emergenti d\'Italia.',img:imgBase+'2025/03/emergenza-scaled-e1742500602298-740x770.jpeg'},
+    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'L\'intrattenimento di cui avete bisogno: teorie sui film, interviste incredibili, storie che non potete perdervi e tantissimo altro! Con Sofia e Riccardo.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg',days:['Lunedì','Mercoledì','Venerdì'],slug:'chiacchiere-gratis'},
+    {time:'17:30–18:00',name:'Emergenza Emergenti',desc:'Le voci di Simone e Camilla vi faranno scoprire quelle del futuro con le loro interviste ai cantanti emergenti d\'Italia! Non vi alletta l\'idea di scoprire un\'artista agli albori della sua carriera? Non perdetevi Emergenza Emergenti ogni mercoledì.',img:imgBase+'2025/03/emergenza-scaled-e1742500602298-740x770.jpeg',days:['Mercoledì'],slug:'emergenza-emergenti'},
   ],
-  gio:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la giornata.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg'}],
+  gio:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la giornata. Il meglio della musica selezionata dallo staff di Radio Carducci.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg',days:['Martedì','Giovedì','Sabato','Domenica'],slug:'la-musica-di-radio-carducci'}],
   ven:[
-    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'Con Sofia e Riccardo ogni lunedì, mercoledì e venerdì.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg'},
-    {time:'16:30–17:00',name:'Parabatai',desc:'Storie di amicizia, legami indissolubili e complicità.',img:imgBase+'2026/03/Parabatai-770x513.jpg'},
-    {time:'17:00–17:30',name:'Biglietti X2',desc:'Simone e Lorenzo ti guidano tra musei, mostre e concerti di Roma.',img:imgBase+'2025/03/biglietti-x2-e1742314761888-596x770.jpg'},
+    {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'L\'intrattenimento di cui avete bisogno: teorie sui film, interviste incredibili, storie che non potete perdervi e tantissimo altro! Con Sofia e Riccardo.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg',days:['Lunedì','Mercoledì','Venerdì'],slug:'chiacchiere-gratis'},
+    {time:'16:30–17:00',name:'Parabatai',desc:'Storie di amicizia, legami indissolubili e complicità. Un programma dedicato ai rapporti che ci definiscono.',img:imgBase+'2026/03/Parabatai-770x513.jpg',days:['Venerdì'],slug:'parabatai'},
+    {time:'17:00–17:30',name:'Biglietti X2',desc:'Simone e Lorenzo vi faranno scoprire nuovi musei, imperdibili mostre e vi terranno aggiornati su tutti i concerti ed eventi di Roma e dintorni. Con loro saprete sempre cosa fare durante il weekend!',img:imgBase+'2025/03/biglietti-x2-e1742314761888-596x770.jpg',days:['Venerdì'],slug:'biglietti-x2'},
   ],
-  sab:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutto il sabato.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg'}],
-  dom:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la domenica.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg'}],
+  sab:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutto il sabato. Il meglio della musica selezionata dallo staff di Radio Carducci.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg',days:['Martedì','Giovedì','Sabato','Domenica'],slug:'la-musica-di-radio-carducci'}],
+  dom:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la domenica. Il meglio della musica selezionata dallo staff di Radio Carducci.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg',days:['Martedì','Giovedì','Sabato','Domenica'],slug:'la-musica-di-radio-carducci'}],
 };
 
 const days=[{key:'lun',label:'Lunedì'},{key:'mar',label:'Martedì'},{key:'mer',label:'Mercoledì'},{key:'gio',label:'Giovedì'},{key:'ven',label:'Venerdì'},{key:'sab',label:'Sabato'},{key:'dom',label:'Domenica'}];
@@ -521,15 +589,38 @@ function renderSchedule(){
   const c=document.getElementById('scheduleContainer');
   const programs=schedule[activeDay]||[];
   if(!programs.length){c.innerHTML='<div class="empty-day">Nessun programma.</div>';return;}
-  c.innerHTML=programs.map(p=>`
-    <div class="program-card">
+  c.innerHTML=programs.map((p,i)=>`
+    <div class="program-card" onclick="openDetail(${i})" style="cursor:pointer">
       <img class="program-thumb" src="${p.img}" alt="${p.name}" onerror="this.outerHTML='<div class=\'program-thumb-placeholder\'>🎙️</div>'">
       <div class="program-info">
         <div class="program-name">${p.name}</div>
         <div class="program-desc">${p.desc}</div>
         <div class="program-time">${p.time}</div>
       </div>
+      <div style="color:var(--gray);font-size:18px;flex-shrink:0;padding-left:4px">›</div>
     </div>`).join('');
+}
+
+function openDetail(idx){
+  const p = schedule[activeDay][idx];
+  if (!p) return;
+  document.getElementById('detailImg').src   = p.img;
+  document.getElementById('detailTitle').textContent = p.name;
+  document.getElementById('detailDesc').textContent  = p.desc;
+  document.getElementById('detailTime').textContent  = '🕐 ' + p.time;
+  document.getElementById('detailLink').href = 'https://www.radiocarducci.com/shows/' + p.slug + '/';
+  // days chips
+  const allDays = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+  document.getElementById('detailDays').innerHTML = allDays.map(d =>
+    `<span class="detail-day-chip ${p.days&&p.days.includes(d)?'active':''}">${d.substring(0,3)}</span>`
+  ).join('');
+  document.getElementById('detailSheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail(){
+  document.getElementById('detailSheet').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 buildDayTabs();

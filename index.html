@@ -447,26 +447,7 @@
 <audio id="audio" preload="none"></audio>
 
 <script>
-// Nascondi splash IMMEDIATAMENTE - IIFE isolato
-(function() {
-  function _hide() {
-    try {
-      var l = document.getElementById('loading');
-      if (!l) return;
-      l.style.transition = 'opacity 0.5s';
-      l.style.opacity = '0';
-      setTimeout(function() { try { if(l.parentNode) l.parentNode.removeChild(l); } catch(e){} }, 500);
-    } catch(e) {}
-  }
-  // Prova ogni 500ms per 10 secondi
-  var attempts = 0;
-  var interval = setInterval(function() {
-    attempts++;
-    var l = document.getElementById('loading');
-    if (!l || l.style.opacity === '0') { clearInterval(interval); return; }
-    if (attempts >= 3) { _hide(); clearInterval(interval); }
-  }, 500);
-})();
+
 
 const STREAM_URL = 'https://altair.streamerr.co/stream/radiocarducci';
 const JSON_URL   = 'https://altair.streamerr.co/json/stream/radiocarducci';
@@ -548,7 +529,7 @@ function renderHistory(history, covers) {
   }).join('');
 }
 
-function startPolling(){ try{ fetchMeta(); } catch(e){ dbg('fetchMeta err: '+e.message); } pollTimer = setInterval(()=>{ try{ fetchMeta(); }catch(e){} }, 10000); }
+function startPolling(){ fetchMeta(); pollTimer = setInterval(fetchMeta, 10000); }
 
 function togglePlay() {
   const playBtn=document.getElementById('playBtn'), playIcon=document.getElementById('playIcon'), waveform=document.getElementById('waveform'), spin=document.getElementById('coverSpin');
@@ -599,7 +580,7 @@ const schedule = {
     {time:'15:00–16:00',name:'Chiacchiere Gratis',desc:'L\'intrattenimento di cui avete bisogno: teorie sui film, interviste incredibili, storie che non potete perdervi e tantissimo altro! Con Sofia e Riccardo.',img:imgBase+'2025/03/chiacchiere-gratis-578x770.jpeg',days:['Lunedì','Mercoledì','Venerdì'],slug:'chiacchiere-gratis'},
     {time:'16:00–16:30',name:'Dove Capita',desc:'Un viaggio che parte da dove capita. Con Andrea Curcuruto alla scoperta di storie, luoghi e culture inaspettate.',img:imgBase+'2026/04/Dove-Capita-e1775077919343.jpeg',days:['Mercoledì'],slug:'dove-capita'},
     {time:'16:30–17:00',name:'Cose da Nerd',desc:'Tutto quello che un nerd doc deve sapere. Cultura pop, tecnologia, videogiochi e molto altro.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg',days:['Mercoledì'],slug:'cose-da-nerd'},
-    {time:'17:00–17:30',name:'Frequenza Civile',desc:'Paolo e Tommaso vi accompagnano nel mondo dell'educazione civica ogni mercoledì dalle 17:00 alle 17:30.',img:imgBase+'2026/04/WhatsApp-Image-2026-04-11-at-09.21.03-scaled-e1776271853142-770x614.jpeg',days:['Mercoledì'],slug:'frequenza-civile'},
+    {time:'17:00–17:30',name:'Frequenza Civile',desc:'Paolo e Tommaso vi accompagnano nel mondo dell\'educazione civica ogni mercoledì dalle 17:00 alle 17:30.',img:imgBase+'2026/04/WhatsApp-Image-2026-04-11-at-09.21.03-scaled-e1776271853142-770x614.jpeg',days:['Mercoledì'],slug:'frequenza-civile'},
     {time:'17:30–18:00',name:'Emergenza Emergenti',desc:'Le voci di Simone e Camilla vi faranno scoprire quelle del futuro con le loro interviste ai cantanti emergenti d\'Italia! Non vi alletta l\'idea di scoprire un\'artista agli albori della sua carriera? Non perdetevi Emergenza Emergenti ogni mercoledì.',img:imgBase+'2025/03/emergenza-scaled-e1742500602298-740x770.jpeg',days:['Mercoledì'],slug:'emergenza-emergenti'},
   ],
   gio:[{time:'00:00–23:59',name:'La Musica di Radio Carducci',desc:'Musica non-stop per tutta la giornata. Il meglio della musica selezionata dallo staff di Radio Carducci.',img:imgBase+'2025/03/Screenshot_14-3-2025_165252_.jpeg',days:['Martedì','Giovedì','Sabato','Domenica'],slug:'la-musica-di-radio-carducci'}],
@@ -678,25 +659,13 @@ function hideSplash() {
   setTimeout(() => { if(l.parentNode) l.remove(); }, 500);
 }
 
-// Nascondi splash SEMPRE dopo 2s, indipendentemente da tutto
-setTimeout(hideSplash, 2000);
-
-// Avvia polling in modo sicuro
-try { startPolling(); } catch(e) { dbg('startPolling error: ' + e.message); }
+// Avvia app
+try { startPolling(); } catch(e) {}
+setTimeout(hideSplash, 1500);
 
 function showTab(name,btn){ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); document.getElementById('panel-'+name).classList.add('active'); btn.classList.add('active'); }
 function shareApp(){ if(navigator.share){navigator.share({title:'Radio Carducci',text:'Ascolta Radio Carducci!',url:'https://www.radiocarducci.com'});}else{navigator.clipboard.writeText('https://www.radiocarducci.com').then(()=>alert('Link copiato!'));} }
 </script>
-<div id="debug" style="position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);color:#0f0;font-size:10px;padding:8px;z-index:9999;max-height:120px;overflow-y:auto;font-family:monospace"></div>
-<script>
-function dbg(msg) {
-  const d = document.getElementById('debug');
-  if(d) d.innerHTML += new Date().toTimeString().slice(0,8) + ' ' + msg + '<br>';
-}
-window.onerror = function(msg, src, line) { dbg('ERROR: ' + msg + ' line:' + line); return false; };
-dbg('Script started');
-document.addEventListener('DOMContentLoaded', () => dbg('DOMContentLoaded'));
-window.addEventListener('load', () => dbg('Window load'));
-</script>
+
 </body>
 </html>

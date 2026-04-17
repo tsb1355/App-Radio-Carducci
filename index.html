@@ -447,18 +447,25 @@
 <audio id="audio" preload="none"></audio>
 
 <script>
-// Nascondi splash IMMEDIATAMENTE con timer - prima di qualsiasi altro codice
+// Nascondi splash IMMEDIATAMENTE - IIFE isolato
 (function() {
   function _hide() {
-    var l = document.getElementById('loading');
-    if (!l) return;
-    l.style.transition = 'opacity 0.5s';
-    l.style.opacity = '0';
-    setTimeout(function() { if(l.parentNode) l.parentNode.removeChild(l); }, 500);
+    try {
+      var l = document.getElementById('loading');
+      if (!l) return;
+      l.style.transition = 'opacity 0.5s';
+      l.style.opacity = '0';
+      setTimeout(function() { try { if(l.parentNode) l.parentNode.removeChild(l); } catch(e){} }, 500);
+    } catch(e) {}
   }
-  setTimeout(_hide, 1500);
-  // Sicurezza assoluta
-  setTimeout(_hide, 5000);
+  // Prova ogni 500ms per 10 secondi
+  var attempts = 0;
+  var interval = setInterval(function() {
+    attempts++;
+    var l = document.getElementById('loading');
+    if (!l || l.style.opacity === '0') { clearInterval(interval); return; }
+    if (attempts >= 3) { _hide(); clearInterval(interval); }
+  }, 500);
 })();
 
 const STREAM_URL = 'https://altair.streamerr.co/stream/radiocarducci';
